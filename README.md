@@ -1,6 +1,6 @@
 # EPL607 - Assignment: Part 1
 
-In this project, I used a simple rasterize process to draw a triangle on an Image. 
+In this project, I used Python to render a triangle on an image using a simple rasterization process.
 
 ## Description
 

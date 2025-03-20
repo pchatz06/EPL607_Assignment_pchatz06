@@ -35,6 +35,7 @@ I used 2 important functions to complete this assignment (further commends in co
 * Also these libraries
 ```
 from PIL import Image, ImageDraw
+import random
 ```
 ### Installing
 * I used PIL as the Image Processing Library

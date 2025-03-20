@@ -61,4 +61,4 @@ color = (0, 0, 255)
 ## Author
 
 * Name: Panteleimonas Chatzimiltis
-* Email: chatz06@ucy.ac.cy
+* Email: pchatz06@ucy.ac.cy

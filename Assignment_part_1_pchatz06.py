@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw
-
+import random
 """
 This function is the most important function for this assignment (checks which pixels to draw basically) here is the explanation:
 With this function I check if a given point (px, py) is inside the triangle.
@@ -61,6 +61,7 @@ def rasterize_triangle(image, v1, v2, v3, color):
             # use the function above, if it returns true, then the point in inside triangle, and color it, else its not.
             if is_inside_triangle(x, y, v1, v2, v3):
                 draw.point((x, y), fill=color)
+                # draw.point((x, y), fill=(random.randint(0, 255),random.randint(0, 255),random.randint(0, 255))) # Random color of each pixel
 
 
 # initialize image (size and create the object as a blank white image)

@@ -69,11 +69,11 @@ draw.point((x, y), fill=(random.randint(0, 255),random.randint(0, 255),random.ra
 * This way each pixel in triangle can have a random color each time.
   
 ### Output example, using the defaults inputs shown above:
-* One color triangle (Blue)
-* ![triangle_blue.png](triangle_blue.png)
+* One color triangle (Blue): \n
+![triangle_blue.png](triangle_blue.png)
 
-* Random color per pixel triangle:
-* ![triangle_random_colors.png](triangle_random_colors.png)
+* Random color per pixel triangle: \n
+![triangle_random_colors.png](triangle_random_colors.png)
 
 ## Author
 

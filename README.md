@@ -55,6 +55,19 @@ p1, p2, p3 = (50, 150), (150, 150), (100, 50)
 ```
 color = (0, 0, 255)
 ```
+* Using a simple addition in code, we can color each pixel a differnt color if we want to
+  ```
+    for x in range(0, image.width + 1):
+        for y in range(0, image.height + 1):
+            if is_inside_triangle(x, y, v1, v2, v3):
+                draw.point((x, y), fill=color)
+  ```
+* Specifically, in the rasterize_triangle function, instead of using a single color for all pixels inside triangle, we can add multiple colors by changing the fill attribute color for each iteration to any color we want in an RGB manner (R, G, B). An option can be to add a randomizer for each R-G-B value, for example use this line insted for drawing each pixel:
+```
+draw.point((x, y), fill=(random.randint(0, 255),random.randint(0, 255),random.randint(0, 255))
+```
+* This way each pixel in triangle can have a random color each time.
+  
 ### Output example, using the defaults inputs shown above:
 ![img.png](img.png)
 

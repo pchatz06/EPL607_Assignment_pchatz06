@@ -209,5 +209,5 @@ triangles = [
     [(-40, -40, 1), (40, -40, 1), (100, 90, 2.5), (0, 0, 255)],  # Blue (farthest)
 ]
 ```
-![3_triangles_extreme.png](3_triangles_extreme.png)
+![3_triangles_extreme_z.png](3_triangles_extreme_z.png)
   

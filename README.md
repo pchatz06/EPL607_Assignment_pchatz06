@@ -1,4 +1,10 @@
+## Author
+
+* Name: Panteleimonas Chatzimiltis
+* Email: pchatz06@ucy.ac.cy
+
 # EPL607 - Assignment: Part 1
+
 
 In this project, I used Python to render a triangle on an image using a simple rasterization process.
 
@@ -76,7 +82,132 @@ draw.point((x, y), fill=(random.randint(0, 255),random.randint(0, 255),random.ra
 * Random color per pixel triangle: \
 ![triangle_random_colors.png](triangle_random_colors.png)
 
-## Author
 
-* Name: Panteleimonas Chatzimiltis
-* Email: pchatz06@ucy.ac.cy
+# EPL607 - Assignment: Part 2
+In this project, I implemented perspective projection and rasterization.
+
+## Description
+* Definition of a vertice (introduction on z):
+```
+# (x, y, z)
+vertices = [
+    (-50, -50, 1),  
+    (50, -50, 1),
+    (50, 50, 1)
+]
+```
+* Definition of triangle:
+```
+# The definition of the triangle is like so [vector 1, vector 2, vector 3, color RGB])
+triangles = [
+    [vertices[0], vertices[1], vertices[2], (255, 0, 0)],
+    [vertices[0], vertices[1], vertices[2], (0, 255, 0)]
+]
+```
+* Rasterization after the addition of z
+```
+# Rasterize triangles by deviding their x and y by z, and also, move the (0,0) to the center of the picture using width/2 for x and height / 2 for y like shown below.
+for t in triangles:
+    p1, p2, p3 = (
+        (t[0][0] / t[0][2] + width / 2, height / 2 - t[0][1] / t[0][2], t[0][2]),
+        (t[1][0] / t[1][2] + width / 2, height / 2 - t[1][1] / t[1][2], t[1][2]),
+        (t[2][0] / t[2][2] + width / 2, height / 2 - t[2][1] / t[2][2], t[2][2])
+    )
+    color = t[3]
+    rasterize_triangle(image, zbuffer, p1, p2, p3, color)
+```
+* Addition of a new function (compute_plane). Here I calculate the equation of the plane with 3 points.
+the three points of vectors (v1, v2, v3) define a plane, and the output is the plane equation in the form: Ax + By + Cz + D = 0 where (A, B, C) is the normal vector and D is a constant. The reason I do this, is to solve to find z for each pixel in order to identify what triangle has the lowest z to be drawn by its color.
+
+```
+def compute_plane(v1, v2, v3):
+    #vectors
+    x1, y1, z1 = v1
+    x2, y2, z2 = v2
+    x3, y3, z3 = v3
+
+    u = (x2 - x1, y2 - y1, z2 - z1)
+    v = (x3 - x1, y3 - y1, z3 - z1)
+
+    # Cross product to find normal vector (A, B, C)
+    A = u[1] * v[2] - u[2] * v[1]
+    B = u[2] * v[0] - u[0] * v[2]
+    C = u[0] * v[1] - u[1] * v[0]
+    D = -(A * x1 + B * y1 + C * z1)
+
+    return A, B, C, D
+```
+
+* Modifications of the rasterize_triangle function:
+```
+# I compute plane's A, B, C, D in order to find z later on
+A, B, C, D = compute_plane(v1, v2, v3)
+
+# bounding box calculation, really simple approach (added the image bound (heigh, width) in the calculations for further performance).
+min_x = round(max(min(v1[0], v2[0], v3[0]), 0))
+max_x = round(min(max(v1[0], v2[0], v3[0]), image.width - 1))
+min_y = round(max(min(v1[1], v2[1], v3[1]), 0))
+max_y = round(min(max(v1[1], v2[1], v3[1]), image.height - 1))
+
+# Inside the nested for-loop which will go pass from the pixel of the triangle, I added the following:
+# Calculate z from plane: z = -(Ax + By + D) / C
+# And if the z has lower value that the zbuffer then a triangle closer to the previous should drawn the pixel, and update the closes z-value for the pixel on the zbuffer.
+z = -(A * x + B * y + D) / C
+if z < zbuffer[x][y]:
+    zbuffer[x][y] = z
+    draw.point((x, y), fill=color)
+
+```
+
+### Executing the improved program
+* The first experiment, was to try and create a cube using the following vertices and triangles:
+```
+vertices = [
+    (-50, -50, 1),  # Front-bottom-left
+    (50, -50, 1),  # Front-bottom-right
+    (50, 50, 1),  # Front-top-right
+    (-50, 50, 1),  # Front-top-left
+    (-50, -50, 2),  # Back-bottom-left
+    (150, -50, 2),  # Back-bottom-right
+    (150, 150, 2),  # Back-top-right
+    (-50, 150, 2)  # Back-top-left
+]
+triangles = [
+    [vertices[0], vertices[1], vertices[2], (255, 0, 0)],  # Red triangle
+    [vertices[0], vertices[2], vertices[3], (255, 0, 0)],  # Red triangle
+    [vertices[4], vertices[5], vertices[6], (0, 255, 0)],  # Green triangle
+    [vertices[4], vertices[6], vertices[7], (0, 255, 0)],  # Green triangle
+    [vertices[0], vertices[3], vertices[7], (0, 0, 255)],  # Blue triangle
+    [vertices[0], vertices[7], vertices[4], (0, 0, 255)],  # Blue triangle
+    [vertices[1], vertices[2], vertices[6], (255, 255, 0)],  # Yellow triangle
+    [vertices[1], vertices[6], vertices[5], (255, 255, 0)],  # Yellow triangle
+    [vertices[2], vertices[3], vertices[7], (255, 165, 0)],  # Orange triangle
+    [vertices[2], vertices[7], vertices[6], (255, 165, 0)],  # Orange triangle
+    [vertices[0], vertices[1], vertices[5], (255, 255, 255)],  # White triangle
+    [vertices[0], vertices[5], vertices[4], (255, 255, 255)],  # White triangle
+]
+```
+
+* The output is like so:
+![cube.png](cube.png)
+
+* I also tried to run some other triangle experiments to test, the z addition, from which this is a simple z experiment where the blue is the closest to the camera, next is the green and furthest is the red:
+```
+triangles = [
+    [(-120, -120, 2), (120, -120, 2), (0, 120, 2), (255, 0, 0)],  # Red (closest)
+    [(-75, -75, 1.5), (75, -75, 1.5), (0, 75, 1.5), (0, 255, 0)],  # Green
+    [(-40, -40, 1), (40, -40, 1), (0, 40, 1), (0, 0, 255)],  # Blue (farthest)
+]
+```
+![3_triangles.png](3_triangles.png)
+
+* Finally, I wanted to test something extreme, from where the triangles, will pass one trhough another, by just modifying the z of the top point:
+```
+triangles = [
+    [(-120, -120, 2), (120, -120, 2), (0, 120, 2), (255, 0, 0)],  # Red (closest)
+    [(-75, -75, 1.5), (75, -75, 1.5), (-100, 150, 3), (0, 255, 0)],  # Green
+    [(-40, -40, 1), (40, -40, 1), (100, 90, 2.5), (0, 0, 255)],  # Blue (farthest)
+]
+```
+![3_triangles_extreme.png](3_triangles_extreme.png)
+  

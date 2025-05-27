@@ -305,7 +305,26 @@ def phong_shading(point, normal, view_dir, material, light):
 
     return tuple(color.astype(int))
 ```
+- Here is an example of Shiny Material Dragon (left) and a Diffusive Material Dragon (right):
+![shiny_diffusive.png](shiny_diffusive.png)
+- The Material definitions are as follow:
+```
+material_specular = Material(
+    color=(0, 1.0, 0),
+    ambient=0.1,
+    diffuse=0.3,
+    specular=1,
+    shininess=2
+)
 
+material_diffuse = Material(
+    color=(0, 1.0, 0),
+    ambient=0.1,
+    diffuse=1.0,
+    specular=0.0,
+    shininess=0
+)
+```
 ## Animation
 - I use the code, below to create the translation, rotation and scaling:
 ```
@@ -420,7 +439,7 @@ for i in range(frames):
 ffmpeg -framerate 3 -i frames/frame_%03d.png -c:v libx264 -pix_fmt yuv420p -y output.mp4
 ```
 * Here is the resulted video:
-[Watch the rotating box video](https://github.com/pchatz06/EPL607_Assignment_pchatz06/raw/refs/heads/main/output.mp4)
+![Watch the rotating box video](https://github.com/pchatz06/EPL607_Assignment_pchatz06/raw/refs/heads/main/output.mp4)
 
 
 ## Camera

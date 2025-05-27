@@ -283,7 +283,7 @@ def load_triangles_from_obj(scene, width, height, camera, material):
 import copy
 
 #light_world = Light(position=(0, -500, 500), intensity=(255, 255, 255))
-light_world = Light(position=(0, 500, 500), intensity=(1.0, 1.0, 1.0))
+light_world = Light(position=(0, -500, 500), intensity=(1.0, 1.0, 1.0))
 # dragon scene
 scene = pywavefront.Wavefront('dragon/Untitled.obj', collect_faces=True)
 #

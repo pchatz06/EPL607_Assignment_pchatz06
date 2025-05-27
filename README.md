@@ -439,7 +439,7 @@ for i in range(frames):
 ffmpeg -framerate 3 -i frames/frame_%03d.png -c:v libx264 -pix_fmt yuv420p -y output.mp4
 ```
 * Here is the resulted video:
-![Watch the rotating box video](https://github.com/pchatz06/EPL607_Assignment_pchatz06/raw/refs/heads/main/output.mp4)
+[Watch the rotating box video](https://github.com/pchatz06/EPL607_Assignment_pchatz06/raw/refs/heads/main/output.mp4)
 
 
 ## Camera

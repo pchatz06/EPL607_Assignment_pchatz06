@@ -258,7 +258,7 @@ def load_triangles_from_obj(scene, width, height, camera):
 
     return triangles
 ```
-* An example render of a 3D object that I downloaded and loaded is this:
+* An example render of a 3D object that I downloaded and loaded is this (A dragon -- WOW):
 ![Dragon.png](Dragon.png)
 
 

@@ -420,9 +420,8 @@ for i in range(frames):
 ffmpeg -framerate 3 -i frames/frame_%03d.png -c:v libx264 -pix_fmt yuv420p -y output.mp4
 ```
 * Here is the resulted video:
-<video width="640" height="360" controls>
-  <source src="https://github.com/pchatz06/EPL607_Assignment_pchatz06/raw/refs/heads/main/output.mp4" type="video/mp4">
-</video>
+[Watch the rotating box video](https://github.com/pchatz06/EPL607_Assignment_pchatz06/raw/refs/heads/main/output.mp4)
+
 
 ## Camera
 - I also implemented a camera system, where lets you render scene from various positions, a user can modify the camera position, orientation (look-at vector), up vector and Field of view.

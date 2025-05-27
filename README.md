@@ -224,9 +224,10 @@ In this project, I implemented Load 3D Geometry, Shading, Animation and Camera e
 scene = pywavefront.Wavefront('dragon/Untitled.obj', collect_faces=True)
 
 # Load the triangles from object
-triangles = load_triangles_from_obj(scene, width, height, camera_lookat)
+material = Material(color=(0, 1, 0), ambient=0.1, diffuse=0.6, specular=0.3, shininess=32)
+triangles = load_triangles_from_obj(scene, width, height, camera_lookat, material)
 
-def load_triangles_from_obj(scene, width, height, camera):
+def load_triangles_from_obj(scene, width, height, camera, material):
     triangles = []
     vertices = scene.vertices
 
@@ -250,8 +251,6 @@ def load_triangles_from_obj(scene, width, height, camera):
             normal = np.cross(np.subtract(v2, v1), np.subtract(v3, v1))
             view_dir = normalize(-v1)
 
-            material = Material(color=(0, 255, 0), ambient=0.1, diffuse=0.6, specular=0.3, shininess=32)
-
             # Use transformed light for shading
             color = phong_shading(v1, normal, view_dir, material, light_world)
             triangles.append((p1, p2, p3, color))
@@ -261,8 +260,202 @@ def load_triangles_from_obj(scene, width, height, camera):
 * An example render of a 3D object that I downloaded and loaded is this (A dragon -- WOW):
 ![Dragon.png](Dragon.png)
 
+## Shading
+- I implemented a local illumination for my renderer.
+- The code supports both diffuse and specular materials.
+- I implemented a material class, so it will be easy to apply materials to 3D objects and to reuse them:
+```
+class Material:
+    def __init__(self, color, ambient=0.1, diffuse=0.7, specular=0.2,
+                 shininess=32):  # DEFAULT VALUES ambient + diffuse + specular must be 1 ideally...
+        self.color = color  # Base RGB color
+        self.ambient = ambient
+        self.diffuse = diffuse
+        self.specular = specular
+        self.shininess = shininess
+```
+- It is also easy to define light sources in the scenes with my design using a Light object:
+```
+class Light:
+    def __init__(self, position, intensity=(1, 1, 1)): # DEFAULT VALUE
+        self.position = position
+        self.intensity = intensity  # RGB tuple
+
+light_world = Light(position=(0, 0, 10), intensity=(1.0, 1.0, 1.0))
+
+```
+- Below is the code for shading using phong:
+```
+def phong_shading(point, normal, view_dir, material, light):
+    normal = normalize(normal)
+    light_dir = normalize(np.array(light.position) - np.array(point))
+    reflect_dir = normalize(2 * normal * np.dot(normal, light_dir) - light_dir)
+
+    ambient = np.array(material.color) * material.ambient
+
+    diff = max(np.dot(normal, light_dir), 0.0)
+    diffuse = np.array(material.color) * material.diffuse * diff
 
 
+    spec = max(np.dot(view_dir, reflect_dir), 0.0) ** material.shininess
+    specular = np.array(light.intensity) * material.specular * spec
+
+    color = ambient + diffuse + specular
+    color = np.clip(color, 0, 1) * 255
+
+    return tuple(color.astype(int))
+```
+
+## Animation
+- I use the code, below to create the translation, rotation and scaling:
+```
+def transform_scene(scene, matrix):
+    scene.vertices = apply_transformations(scene.vertices, matrix)
 
 
+def apply_transformations(vertices, matrix):
+    transformed = []
+    for v in vertices:
+        v_homogeneous = np.array([v[0], v[1], v[2], 1])  # A 3D point extended to 4D to allow translations
+        v_transformed = matrix @ v_homogeneous  # Matrix multiplication
+        transformed.append(v_transformed[:3])
+    return transformed
 
+
+def translation_matrix(tx, ty, tz):
+    return np.array([
+        [1, 0, 0, tx],
+        [0, 1, 0, ty],
+        [0, 0, 1, tz],
+        [0, 0, 0, 1]
+    ])
+
+
+def scaling_matrix(sx, sy, sz):
+    return np.array([
+        [sx, 0, 0, 0],
+        [0, sy, 0, 0],
+        [0, 0, sz, 0],
+        [0, 0, 0, 1]
+    ])
+
+
+def rotation_matrix_x(theta):
+    c, s = np.cos(theta), np.sin(theta)
+    return np.array([
+        [1, 0, 0, 0],
+        [0, c, -s, 0],
+        [0, s, c, 0],
+        [0, 0, 0, 1]
+    ])
+
+
+def rotation_matrix_y(theta):
+    c, s = np.cos(theta), np.sin(theta)
+    return np.array([
+        [c, 0, s, 0],
+        [0, 1, 0, 0],
+        [-s, 0, c, 0],
+        [0, 0, 0, 1]
+    ])
+
+
+def rotation_matrix_z(theta):
+    c, s = np.cos(theta), np.sin(theta)
+    return np.array([
+        [c, -s, 0, 0],
+        [s, c, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ])
+```
+- To create a video of a cube, that is using translation, rotation (x, y, z) and scaling I used the following code:
+```
+width, height = 1000, 1000
+frames = 60
+
+for i in range(frames):
+    t = i / frames
+
+    # Rotation angles in degrees
+    angle_x = 30 * np.sin(2 * np.pi * t)
+    angle_y = 360 * t
+    angle_z = 20 * np.cos(2 * np.pi * t)
+
+    # Translation and scale oscillation
+    tx = 0.5 * np.sin(2 * np.pi * t)
+    ty = 0.2 * np.cos(2 * np.pi * t)
+    scale = 1 + 0.1 * np.sin(2 * np.pi * t)
+
+    # Build transformations
+    Rx = rotation_matrix_x(angle_x)
+    Ry = rotation_matrix_y(angle_y)
+    Rz = rotation_matrix_z(angle_z)
+    T = translation_matrix(tx, ty, 0)
+    S = scaling_matrix(scale, scale, scale)
+
+    # Combined transformation: T * Rz * Ry * Rx * S
+    transformation = T @ Rz @ Ry @ Rx @ S
+
+    # Apply to fresh scene
+    scene_frame = pywavefront.Wavefront('box/box.obj', collect_faces=True)
+    scene_frame.vertices = copy.deepcopy(original_vertices)
+    transform_scene(scene_frame, transformation)
+
+    # Render frame
+    image = Image.new("RGB", (width, height), (255, 255, 255))
+    zbuffer = [[float('inf')] * width for _ in range(height)]
+
+    triangles = load_triangles_from_obj(scene_frame, width, height, camera)
+
+    for t in triangles:
+        p1, p2, p3 = t[0], t[1], t[2]
+        color = t[3]
+        rasterize_triangle(image, zbuffer, p1, p2, p3, color)
+
+    image.save(f"frames/frame_{i:03d}.png")
+```
+- After saving the images, I created the video using the following bash command:
+```
+ffmpeg -framerate 3 -i frames/frame_%03d.png -c:v libx264 -pix_fmt yuv420p -y output.mp4
+```
+* Here is the resulted video:
+![output.mp4](output.mp4)
+
+## Camera
+- I also implemented a camera system, where lets you render scene from various positions, a user can modify the camera position, orientation (look-at vector), up vector and Field of view.
+- Here is the definition of the object for the camera:
+```
+class Camera:
+    def __init__(self, position, look_at, up, fov):
+        self.position = np.array(position)
+        self.look_at = np.array(look_at)
+        self.up = np.array(up)
+        self.fov = fov
+
+    def world_to_camera(self, point):
+        # Create coordinate system
+        forward = normalize(self.look_at - self.position)
+        right = normalize(np.cross(forward, self.up))
+        up = np.cross(right, forward)
+
+        # Transform point to camera space
+        rel = np.array(point) - self.position
+        x = np.dot(rel, right)
+        y = np.dot(rel, up)
+        z = np.dot(rel, forward)
+        return np.array([x, y, z])
+```
+- This code includes the world-to-camera function, which basically returns the position of an object based on the camera position (WC to VC).
+- Here is an example of camera definition:
+```
+camera = Camera(
+    position=(0, 5, 5),        
+    look_at=(0, 0, 1),         
+    up=[0, 1, 0],             
+    fov=90
+)
+```
+- The camera is used when we load the triangles from object in the function showed above.
+- Here are different image results when rendering the dragon, with different parameters used for camera:
+![position.png](position.png)

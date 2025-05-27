@@ -211,3 +211,58 @@ triangles = [
 ```
 ![3_triangles_extreme_z.png](3_triangles_extreme_z.png)
   
+# EPL607 - Assignment: Final Part
+In this project, I implemented Load 3D Geometry, Shading, Animation and Camera extensions.
+
+## Load 3D Geometry
+- I have downloaded 3D objects from [https://graphics.stanford.edu/data/3Dscanrep/](https://graphics.stanford.edu/data/3Dscanrep/).
+- After doing so, since the format was not .obj, I used Blender software, to export the object in .obj format.
+- I used PyWavefront as the library to load these files.
+- To get the triangles from the object I used the code below (it has some additional features, that we will talk about later).
+```
+# Load the 3D object (requiring a .obj and a .mtl file)
+scene = pywavefront.Wavefront('dragon/Untitled.obj', collect_faces=True)
+
+# Load the triangles from object
+triangles = load_triangles_from_obj(scene, width, height, camera_lookat)
+
+def load_triangles_from_obj(scene, width, height, camera):
+    triangles = []
+    vertices = scene.vertices
+
+    for mesh in scene.mesh_list:
+        for face in mesh.faces:
+            if len(face) != 3:
+                continue
+
+            v1 = camera.world_to_camera(vertices[face[0]])
+            v2 = camera.world_to_camera(vertices[face[1]])
+            v3 = camera.world_to_camera(vertices[face[2]])
+
+            # Skip triangles behind the camera
+            if v1[2] <= 0 or v2[2] <= 0 or v3[2] <= 0:
+                continue
+
+            p1 = project(v1, width, height, camera.fov)
+            p2 = project(v2, width, height, camera.fov)
+            p3 = project(v3, width, height, camera.fov)
+
+            normal = np.cross(np.subtract(v2, v1), np.subtract(v3, v1))
+            view_dir = normalize(-v1)
+
+            material = Material(color=(0, 255, 0), ambient=0.1, diffuse=0.6, specular=0.3, shininess=32)
+
+            # Use transformed light for shading
+            color = phong_shading(v1, normal, view_dir, material, light_world)
+            triangles.append((p1, p2, p3, color))
+
+    return triangles
+```
+* An example render of a 3D object that I downloaded and loaded is this:
+![Dragon.png](Dragon.png)
+
+
+
+
+
+

@@ -371,7 +371,7 @@ material_specular = Material(
 # triangles1 = load_triangles_from_obj(scene1, width, height, camera, material_diffuse)
 # triangles2 = load_triangles_from_obj(scene2, width, height, camera, material_specular)
 # triangles = triangles1 + triangles2
-triangles = load_triangles_from_obj(scene, width, height, camera, material_specular)
+triangles = load_triangles_from_obj(scene, width, height, camera, material_diffuse)
 
 # rasterize triangles, devide their x and y by z, and also, move the (0,0) to the center of the picture using width/2 for x and height / 2 for y like shown below.
 for t in triangles:

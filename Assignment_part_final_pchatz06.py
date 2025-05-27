@@ -271,7 +271,7 @@ def load_triangles_from_obj(scene, width, height, camera, material):
             p3 = project(v3, width, height, camera.fov)
 
             normal = normalize(np.cross(np.subtract(v2, v1), np.subtract(v3, v1)))
-            view_dir = normalize(camera.position - v1)
+            view_dir = normalize(-v1)
 
             # Use transformed light for shading
             color = phong_shading(v1, normal, view_dir, material, light_world)
@@ -283,7 +283,7 @@ def load_triangles_from_obj(scene, width, height, camera, material):
 import copy
 
 #light_world = Light(position=(0, -500, 500), intensity=(255, 255, 255))
-light_world = Light(position=(0, 0, 10), intensity=(1.0, 1.0, 1.0))
+light_world = Light(position=(0, 500, 500), intensity=(1.0, 1.0, 1.0))
 # dragon scene
 scene = pywavefront.Wavefront('dragon/Untitled.obj', collect_faces=True)
 #
@@ -292,7 +292,7 @@ scene = pywavefront.Wavefront('dragon/Untitled.obj', collect_faces=True)
 # original_vertices = copy.deepcopy(scene_original.vertices)
 #
 camera = Camera(
-    position=(0, 5, 5),        # Camera is directly in front
+    position=(0, 0, -100),        # Camera is directly in front
     look_at=(0, 0, 1),         # Looking at center of the scene
     up=[0, 1, 0],             # Y-axis points downward on screen
     fov=90
@@ -343,13 +343,13 @@ camera = Camera(
 #     image.save(f"frames/frame_{i:03d}.png")
 
 # Diffuse (green) object on the left
-# material_diffuse = Material(
-#     color=(0, 1.0, 0),
-#     ambient=0.1,
-#     diffuse=1.0,
-#     specular=0.0,
-#     shininess=0
-# )
+material_diffuse = Material(
+    color=(0, 1.0, 0),
+    ambient=0.1,
+    diffuse=1.0,
+    specular=0.0,
+    shininess=0
+)
 
 # Specular (blue) object on the right
 material_specular = Material(

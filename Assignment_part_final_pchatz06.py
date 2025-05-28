@@ -245,7 +245,7 @@ def project(v, width, height, fov):
     scale = width / (2 * math.tan(math.radians(fov / 2)))
     x = v[0] * scale / v[2] + width / 2
     y = -v[1] * scale / v[2] + height / 2
-    return (x, y, v[2])
+    return x, y, v[2]
 
 
 # Extract Triangles from the OBJ File
@@ -270,7 +270,7 @@ def load_triangles_from_obj(scene, width, height, camera, material):
             p2 = project(v2, width, height, camera.fov)
             p3 = project(v3, width, height, camera.fov)
 
-            normal = normalize(np.cross(np.subtract(v2, v1), np.subtract(v3, v1)))
+            normal = normalize(np.cross(np.subtract(v3, v1), np.subtract(v2, v1)))
             view_dir = normalize(-v1)
 
             # Use transformed light for shading
@@ -283,7 +283,7 @@ def load_triangles_from_obj(scene, width, height, camera, material):
 import copy
 
 #light_world = Light(position=(0, -500, 500), intensity=(255, 255, 255))
-light_world = Light(position=(0, -500, 500), intensity=(1.0, 1.0, 1.0))
+light_world = Light(position=(0, 500, -500), intensity=(1.0, 1.0, 1.0))
 # dragon scene
 scene = pywavefront.Wavefront('dragon/Untitled.obj', collect_faces=True)
 #
@@ -371,7 +371,7 @@ material_specular = Material(
 # triangles1 = load_triangles_from_obj(scene1, width, height, camera, material_diffuse)
 # triangles2 = load_triangles_from_obj(scene2, width, height, camera, material_specular)
 # triangles = triangles1 + triangles2
-triangles = load_triangles_from_obj(scene, width, height, camera, material_diffuse)
+triangles = load_triangles_from_obj(scene, width, height, camera, material_specular)
 
 # rasterize triangles, devide their x and y by z, and also, move the (0,0) to the center of the picture using width/2 for x and height / 2 for y like shown below.
 for t in triangles:

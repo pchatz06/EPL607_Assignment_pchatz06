@@ -224,8 +224,14 @@ In this project, I implemented Load 3D Geometry, Shading, Animation and Camera e
 scene = pywavefront.Wavefront('dragon/Untitled.obj', collect_faces=True)
 
 # Load the triangles from object
-material = Material(color=(0, 1, 0), ambient=0.1, diffuse=0.6, specular=0.3, shininess=32)
-triangles = load_triangles_from_obj(scene, width, height, camera_lookat, material)
+material_specular = Material(
+    color=(0, 1.0, 0),
+    ambient=0.1,
+    diffuse=0.3,
+    specular=1,
+    shininess=2
+)
+triangles = load_triangles_from_obj(scene, width, height, camera_lookat, material_specular)
 
 def load_triangles_from_obj(scene, width, height, camera, material):
     triangles = []
@@ -248,7 +254,7 @@ def load_triangles_from_obj(scene, width, height, camera, material):
             p2 = project(v2, width, height, camera.fov)
             p3 = project(v3, width, height, camera.fov)
 
-            normal = np.cross(np.subtract(v2, v1), np.subtract(v3, v1))
+            normal = normalize(np.cross(np.subtract(v3, v1), np.subtract(v2, v1)))
             view_dir = normalize(-v1)
 
             # Use transformed light for shading
@@ -277,7 +283,7 @@ class Material:
 - It is also easy to define light sources in the scenes with my design using a Light object:
 ```
 class Light:
-    def __init__(self, position, intensity=(1, 1, 1)): # DEFAULT VALUE
+    def __init__(self, position, intensity=(1, 1, 1)):
         self.position = position
         self.intensity = intensity  # RGB tuple
 

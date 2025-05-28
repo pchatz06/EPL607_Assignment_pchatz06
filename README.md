@@ -312,7 +312,7 @@ def phong_shading(point, normal, view_dir, material, light):
     return tuple(color.astype(int))
 ```
 - Here is an example of Shiny Material Dragon (left) and a Diffusive Material Dragon (right):
-![shiny_diffusive.png](shiny_diffusive.png)
+![shiny_diffusive_dragon.png](shiny_diffusive_dragon.png)
 - The Material definitions are as follow:
 ```
 material_specular = Material(
